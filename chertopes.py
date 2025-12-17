@@ -5,6 +5,8 @@ import os
 from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+import threading
+from flask import Flask
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATA_FILE = "stats.json"
@@ -22,6 +24,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
+
+def start_health_server():
+    app_flask = Flask(__name__)
+    
+    @app_flask.route("/health")
+    def health():
+        return "OK", 200
+
+    port = int(os.environ.get("PORT", 10000))
+    app_flask.run(host="0.0.0.0", port=port)
 
 def save_data():
     """Сохраняет данные в stats.json"""
@@ -236,4 +248,6 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
+    health_thread = threading.Thread(target=start_health_server, daemon=True)
+    health_thread.start()
     main()
