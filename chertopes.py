@@ -231,6 +231,9 @@ def signal_handler(sig, frame):
 
 # ====== Запуск ======
 def main():
+     if not BOT_TOKEN:
+        logging.critical("❌ BOT_TOKEN не задан! Убедитесь, что он добавлен в Environment Variables на Render.")
+        sys.exit(1)  # ← аварийное завершение с кодом ошибки
     # Загружаем данные при старте
     load_data()
 
